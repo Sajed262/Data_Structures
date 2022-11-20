@@ -1,3 +1,3 @@
 # Data_Structures
 
-these are some generic data structures implemented in C++.
+Some generic data structures that I implemented in C++.
