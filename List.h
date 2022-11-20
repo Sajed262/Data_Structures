@@ -25,6 +25,7 @@ public:
 template<class T>
 class List {
 public:
+    int size;
     Node<T> *first;
     Node<T> *last;
     Node<T> *Iterator;
@@ -71,7 +72,7 @@ void Node<T>::clearNode() {
 }
 
 template<class T>
-List<T>::List() : first(nullptr), last(nullptr), Iterator(nullptr) {}
+List<T>::List() : size(0), first(nullptr), last(nullptr), Iterator(nullptr) {}
 
 template<class T>
 List<T>::~List() {
@@ -91,12 +92,13 @@ void List<T>::addElement(int key, T &data) {
     if (first == nullptr) {
         first = n;
         last = n;
+        size++;
         return;
     }
     first->prev = n;
     n->next = first;
     first = n;
-
+    size++;
     return;
 }
 
@@ -125,6 +127,7 @@ void List<T>::removeElement(int key) {
             if (current == first)
                 first = current->next;
             delete current;
+            size--;
             return;
         }
         current = current->next;
