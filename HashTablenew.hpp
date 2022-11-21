@@ -160,7 +160,7 @@ public:Cell<T> **table;
         delete[] tabl;
     }
 
-    int getSize() { return size; }
+    int getSize() { return numOfKeys; }
 
 };
 
