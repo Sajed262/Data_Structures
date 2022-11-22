@@ -1,12 +1,18 @@
+// by sajed
 //
-// 
 //
 
 #ifndef HW1_MVNI_L_H
 #define HW1_MVNI_L_H
 
-template<class T>
-class Node {
+#include "MaxSortHeap.h" // the heap in the same repo
+#include <ostream>
+
+using std::ostream;
+
+template <class T>
+class Node
+{
 public:
     Node *prev;
     Node *next;
@@ -22,8 +28,9 @@ public:
     void clearNode();
 };
 
-template<class T>
-class List {
+template <class T>
+class List
+{
 public:
     int size;
     Node<T> *first;
@@ -45,39 +52,48 @@ public:
     void removeElement(int key);
 
     void clearList();
+
+    List &sortedList();
+
+    List &traverse();
 };
 
+template <class T>
+Node<T>::Node(Node *p, Node *n, T &d, int k) : prev(p), next(n), data(new T(d)),
+                                               key(k) {}
 
-template<class T>
-Node<T>::Node(Node *p, Node *n, T &d, int k): prev(p), next(n), data(new T(d)),
-                                              key(k) {
-}
-
-template<class T>
-Node<T>::Node(const Node &node) {
+template <class T>
+Node<T>::Node(const Node &node)
+{
     this->key = node.key;
     this->data = new T(*node.data);
     this->next = node.next;
     this->prev = node.prev;
 }
 
-template<class T>
-Node<T>::~Node() {
+template <class T>
+Node<T>::~Node()
+{
     delete data;
-}
-
-template<class T>
-void Node<T>::clearNode() {
     data = nullptr;
 }
 
-template<class T>
+template <class T>
+void Node<T>::clearNode()
+{
+    delete data;
+    data = nullptr;
+}
+
+template <class T>
 List<T>::List() : size(0), first(nullptr), last(nullptr), Iterator(nullptr) {}
 
-template<class T>
-List<T>::~List() {
+template <class T>
+List<T>::~List()
+{
     Node<T> *current = last;
-    while (current) {
+    while (current)
+    {
         Node<T> *p = current->prev;
         delete current;
         current = p;
@@ -86,10 +102,15 @@ List<T>::~List() {
     first = last;
 }
 
-template<class T>
-void List<T>::addElement(int key, T &data) {
+template <class T>
+void List<T>::addElement(int key, T &data)
+{
+    if (this->getElement(key))
+        return;
+
     Node<T> *n = new Node<T>(nullptr, nullptr, data, key);
-    if (first == nullptr) {
+    if (first == nullptr)
+    {
         first = n;
         last = n;
         size++;
@@ -102,22 +123,29 @@ void List<T>::addElement(int key, T &data) {
     return;
 }
 
-template<class T>
-T *List<T>::getElement(int key) {
+template <class T>
+T *List<T>::getElement(int key)
+{
 
     Node<T> *current = first;
-    while (current) {
-        if (current->key == key) return (current->data);
-        else current = current->next;
+    while (current)
+    {
+        if (current->key == key)
+            return (current->data);
+        else
+            current = current->next;
     }
     return nullptr;
 }
 
-template<class T>
-void List<T>::removeElement(int key) {
+template <class T>
+void List<T>::removeElement(int key)
+{
     Node<T> *current = first;
-    while (current) {
-        if (current->key == key) {
+    while (current)
+    {
+        if (current->key == key)
+        {
             if (current->next)
                 current->next->prev = current->prev;
             if (current->prev)
@@ -134,17 +162,20 @@ void List<T>::removeElement(int key) {
     }
 }
 
-
-template<class T>
-Node<T> *List<T>::getFirstKey() {
-    if (!first) return nullptr;
+template <class T>
+Node<T> *List<T>::getFirstKey()
+{
+    if (!first)
+        return nullptr;
     Iterator = first;
     return first;
 }
 
-template<class T>
-Node<T> *List<T>::getNextKey() {
-    if (!Iterator->next) {
+template <class T>
+Node<T> *List<T>::getNextKey()
+{
+    if (!Iterator->next)
+    {
         Iterator = Iterator->next;
         return nullptr;
     }
@@ -152,13 +183,56 @@ Node<T> *List<T>::getNextKey() {
     return Iterator;
 }
 
-template<class T>
-void List<T>::clearList() {
+template <class T>
+void List<T>::clearList()
+{
     getFirstKey();
-    while (Iterator) {
+    while (Iterator)
+    {
         Iterator->clearNode();
         getNextKey();
     }
+    first = last = Iterator = nullptr;
+    size = 0;
 }
 
-#endif //HW1_MVNI_L_H
+// heap for the sort
+template <class T>
+List<T> &List<T>::sortedList()
+{
+    getFirstKey();
+    int array[size];
+    T arr[size];
+    int i = 0;
+    while (Iterator && i < size)
+    {
+        array[i] = Iterator->key;
+        arr[i] = *Iterator->data;
+        i++;
+        getNextKey();
+    }
+    MaxHeap<T> heap_sort(size, arr, array);
+    Unit<T> **sorted_array = heap_sort.heapSort();
+    List<T> *sorted = new List<T>();
+    for (int i = size - 1; i >= 0; i--)
+    {
+        sorted->addElement(sorted_array[i]->key, *sorted_array[i]->data);
+    }
+
+    return *sorted;
+}
+
+template <class T>
+List<T> &List<T>::traverse()
+{
+    List<T> *reversed = new List<T>();
+    getFirstKey();
+    while (Iterator)
+    {
+        reversed->addElement(Iterator->key, *Iterator->data);
+        getNextKey();
+    }
+    return *reversed;
+}
+
+#endif // HW1_MVNI_L_H

@@ -1,13 +1,12 @@
-//
+// by sajed
 //
 //
 
 #ifndef WET2_MVNI_HASHTABLENEW_HPP
 #define WET2_MVNI_HASHTABLENEW_HPP
 
-#include "List.h" // the list in the same folder.
+#include "List.h" // the list in the same repo.
 #include <iostream>
-
 
 using std::ostream;
 
@@ -43,7 +42,7 @@ public:
 
     Node<T> *getFirst()
     {
-        
+
         return data.getFirstKey();
     }
 
@@ -54,6 +53,7 @@ public:
 
     void reinsert(int key, T *dat)
     {
+        size++;
         data.addElement(key, *dat);
     }
 
@@ -61,7 +61,7 @@ public:
     {
         if (!(data.getElement(key)))
         {
-            
+
             data.addElement(key, dat);
             size++;
             return 0;
@@ -69,10 +69,11 @@ public:
         return -1;
     }
 
-    void remove(int key)
+    int remove(int key)
     {
         data.removeElement(key);
         size--;
+        return size;
     }
 
     void clearCell()
@@ -82,17 +83,17 @@ public:
 };
 
 template <class T>
-class HashTable
+class HashTable // based on chain hashing.
 {
     int size;
     int numOfKeys;
+    Cell<T> **table;
     
-
     static void resize(HashTable &ht);
 
     static void reinsert(Cell<T> **new_table, int new_size, Node<T> *data);
 
-public:Cell<T> **table;
+public:
     HashTable() : size(SIZE), numOfKeys(0)
     {
         table = (new Cell<T> *[SIZE]);
@@ -144,7 +145,10 @@ public:Cell<T> **table;
             return -1;
         int index = findIndexForHash(key, size);
         Cell<T> *cell = table[index];
-        cell->remove(key);
+        if (cell->remove(key) == 0)
+        {
+            table[index] = nullptr;
+        }
         numOfKeys--;
         return 0;
     }
@@ -160,8 +164,30 @@ public:Cell<T> **table;
         delete[] tabl;
     }
 
-    int getSize() { return numOfKeys; }
+    int getSize() { return size; }
 
+    int getNumOfKeys() { return numOfKeys; }
+
+    friend ostream &operator<<(ostream &os, HashTable *ht)
+    {
+        os << "Printing the elements:" << std::endl;
+
+        int elem = 0;
+        for (size_t i = 0; i < ht->getSize(); i++)
+        {
+            if (!(ht->table[i]))
+                continue;
+            os << "     Printing elements in cell " << i << ": " << std::endl;
+            Node<T> *tmp = ht->table[i]->getFirst();
+            while (tmp)
+            {
+                os << "         key: " << tmp->key << ", data: " << *(tmp->data) << ", element number: " << ++elem << "." << std::endl;
+                tmp = ht->table[i]->getNext();
+            }
+        }
+        os << "Number of elements: " << elem << ", Number of keys: " << ht->getNumOfKeys() << std::endl;
+        return os;
+    }
 };
 
 template <class T>
