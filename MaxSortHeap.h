@@ -3,9 +3,10 @@
 //
 
 // there is no insert function, the purpose of the heap is for sorting only, O(NlogN).
-//
-//
-// you can modify it for insertion but then you cant use array, because the size of is not dynamic, and if it is dynamic it will cost alot.
+// you can modify it for insertion but then you cant use array, because the size is not dynamic,
+// and if it is dynamic it will cost alot in the insertion because we will need to copy the whole array
+// to a new array with the new size, so the insertion will cost O(N). instead of O(1).
+// i have implemented a min heap with insertion using vector.
 #ifndef MAX_HEAP
 #define MAX_HEAP
 
@@ -32,7 +33,7 @@ public:
 };
 
 template <class T>
-class MaxHeap // initialized with n elements
+class MaxSortHeap // initialized with n elements
 {
     /* data */
     int size;
@@ -91,7 +92,7 @@ public:
     // array can be a complete binary tree,
     // when the parent of i'th vertex is at index i/2 floor, left son at 2i, right son 2i+1
     // the complexity of making a heap of n elements is O(n)
-    MaxHeap(int n, T arr[], int array[]) : size(n), data(new Unit<T> *[size])
+    MaxSortHeap(int n, T arr[], int array[]) : size(n), data(new Unit<T> *[size])
     {
         for (size_t i = 0; i < size; i++)
         {
@@ -106,7 +107,7 @@ public:
         }
     }
 
-    ~MaxHeap()
+    ~MaxSortHeap()
     {
         for (size_t i = 0; i < size; i++)
         {

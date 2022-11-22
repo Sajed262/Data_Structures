@@ -211,7 +211,7 @@ List<T> &List<T>::sortedList()
         i++;
         getNextKey();
     }
-    MaxHeap<T> heap_sort(size, arr, array);
+    MaxSortHeap<T> heap_sort(size, arr, array);
     Unit<T> **sorted_array = heap_sort.heapSort();
     List<T> *sorted = new List<T>();
     for (int i = size - 1; i >= 0; i--)
