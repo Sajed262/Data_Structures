@@ -5,10 +5,12 @@
 #ifndef HW1_MVNI_L_H
 #define HW1_MVNI_L_H
 
-#include "MaxSortHeap.h" // the heap in the same repo
-#include <ostream>
+#include "MinHeap.h" // the heap in the same repo
+#include <iostream>
+#include <vector>
 
 using std::ostream;
+using std::vector;
 
 template <class T>
 class Node
@@ -16,7 +18,7 @@ class Node
 public:
     Node *prev;
     Node *next;
-    T *data;
+    T data;
     int key;
 
     Node(Node *p, Node *n, T &d, int k);
@@ -25,7 +27,7 @@ public:
 
     ~Node();
 
-    void clearNode();
+    Node &operator=(const Node &node);
 };
 
 template <class T>
@@ -41,9 +43,15 @@ public:
 
     ~List();
 
+    List(const List &list);
+
+    List &operator=(const List &list);
+
     void addElement(int key, T &data);
 
     T *getElement(int key);
+
+    Node<T> *getLastKey();
 
     Node<T> *getFirstKey();
 
@@ -53,37 +61,27 @@ public:
 
     void clearList();
 
-    List &sortedList();
+    void removeTop();
 
-    List &traverse();
+    void removeLast();
+
+    List sortList();
+
+    List traverse();
 };
 
 template <class T>
-Node<T>::Node(Node *p, Node *n, T &d, int k) : prev(p), next(n), data(new T(d)),
+Node<T>::Node(Node *p, Node *n, T &d, int k) : prev(p), next(n), data(d),
                                                key(k) {}
 
 template <class T>
-Node<T>::Node(const Node &node)
-{
-    this->key = node.key;
-    this->data = new T(*node.data);
-    this->next = node.next;
-    this->prev = node.prev;
-}
+Node<T>::Node(const Node &node) = default;
 
 template <class T>
-Node<T>::~Node()
-{
-    delete data;
-    data = nullptr;
-}
+Node<T>::~Node() = default;
 
 template <class T>
-void Node<T>::clearNode()
-{
-    delete data;
-    data = nullptr;
-}
+Node<T> &Node<T>::operator=(const Node<T> &node) = default;
 
 template <class T>
 List<T>::List() : size(0), first(nullptr), last(nullptr), Iterator(nullptr) {}
@@ -103,11 +101,46 @@ List<T>::~List()
 }
 
 template <class T>
+List<T>::List(const List<T> &list) : size(list.size)
+{
+    this->first = this->last = this->Iterator = nullptr;
+    Node<T> *current = list.last;
+    while (current)
+    {
+        this->addElement(current->key, current->data);
+        current = current->prev;
+    }
+}
+
+template <class T>
+List<T> &List<T>::operator=(const List<T> &list)
+{
+    if (this == &list)
+        return *this;
+    Node<T> *current = last;
+    while (current)
+    {
+        Node<T> *p = current->prev;
+        delete current;
+        current = p;
+        last = p;
+    }
+    first = last;
+
+    this->size = list.size;
+    this->first = this->last = this->Iterator = nullptr;
+    current = list.last;
+    while (current)
+    {
+        this->addElement(current->key, current->data);
+        current = current->prev;
+    }
+    return *this;
+}
+
+template <class T>
 void List<T>::addElement(int key, T &data)
 {
-    if (this->getElement(key))
-        return;
-
     Node<T> *n = new Node<T>(nullptr, nullptr, data, key);
     if (first == nullptr)
     {
@@ -131,7 +164,7 @@ T *List<T>::getElement(int key)
     while (current)
     {
         if (current->key == key)
-            return (current->data);
+            return &(current->data);
         else
             current = current->next;
     }
@@ -163,6 +196,9 @@ void List<T>::removeElement(int key)
 }
 
 template <class T>
+Node<T> *List<T>::getLastKey() { return last; }
+
+template <class T>
 Node<T> *List<T>::getFirstKey()
 {
     if (!first)
@@ -186,53 +222,78 @@ Node<T> *List<T>::getNextKey()
 template <class T>
 void List<T>::clearList()
 {
-    getFirstKey();
+    Node<T> *tmp = getFirstKey();
     while (Iterator)
     {
-        Iterator->clearNode();
         getNextKey();
+        delete tmp;
     }
     first = last = Iterator = nullptr;
     size = 0;
 }
 
-// heap for the sort
 template <class T>
-List<T> &List<T>::sortedList()
+void List<T>::removeTop() // for the stack
 {
-    getFirstKey();
-    int array[size];
-    T arr[size];
-    int i = 0;
-    while (Iterator && i < size)
-    {
-        array[i] = Iterator->key;
-        arr[i] = *Iterator->data;
-        i++;
-        getNextKey();
-    }
-    MaxSortHeap<T> heap_sort(size, arr, array);
-    Unit<T> **sorted_array = heap_sort.heapSort();
-    List<T> *sorted = new List<T>();
-    for (int i = size - 1; i >= 0; i--)
-    {
-        sorted->addElement(sorted_array[i]->key, *sorted_array[i]->data);
-    }
-
-    return *sorted;
+    Node<T> *top_to_remove = getFirstKey();
+    if (top_to_remove->next)
+        top_to_remove->next->prev = nullptr;
+    first = top_to_remove->next;
+    if (!first)
+        first = last = Iterator = nullptr;
+    delete top_to_remove;
+    size--;
 }
 
 template <class T>
-List<T> &List<T>::traverse()
+void List<T>::removeLast() // for the queue
 {
-    List<T> *reversed = new List<T>();
+    Node<T> *last_to_remove = last;
+    if (last_to_remove->prev)
+        last_to_remove->prev->next = nullptr;
+    last = last_to_remove->prev;
+    if (!last)
+        first = last = Iterator = nullptr;
+    delete last_to_remove;
+    size--;
+}
+
+// sorting by heap sort O(NlogN)
+template <class T>
+List<T> List<T>::sortList()
+{
+    getFirstKey();
+    vector<apex<T>> array;
+
+    int i = 0;
+    while (Iterator && i < size)
+    {
+        apex<T> nueva(Iterator->key, Iterator->data);
+        array.push_back(nueva);
+        i++;
+        getNextKey();
+    }
+    MinHeap<T> heap_sort(array);
+    vector<apex<T>> sorted_array = heap_sort.heapSort();
+    List<T> sorted;
+    for (int i = size - 1; i >= 0; i--)
+    {
+        sorted.addElement(sorted_array[i].key, sorted_array[i].data);
+    }
+    return sorted;
+}
+
+template <class T>
+List<T> List<T>::traverse()
+{
+    List<T> reversed;
     getFirstKey();
     while (Iterator)
     {
-        reversed->addElement(Iterator->key, *Iterator->data);
+        reversed.addElement(Iterator->key, Iterator->data);
         getNextKey();
     }
-    return *reversed;
+    return reversed;
 }
 
 #endif // HW1_MVNI_L_H
