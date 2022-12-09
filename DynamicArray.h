@@ -85,7 +85,7 @@ public:
     {
         if (index >= top)
             return;
-        for (int i = index; i < top; i++)// when removing not from the end we need to shift the other elements
+        for (int i = index; i < top; i++) // when removing not from the end we need to shift the other elements
             dynamic_array[i] = dynamic_array[i + 1];
         top--;
         if (top <= size / 4)
@@ -99,6 +99,14 @@ public:
         }
     }
 
+    void clear()
+    {
+        top = 0;
+        size = 2;
+        delete[] dynamic_array;
+        T *new_arr = new T[size];
+    }
+    
     T operator[](int index)
     {
         assert(index < top);
