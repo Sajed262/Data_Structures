@@ -21,7 +21,9 @@ private:
     T *dynamic_array;
 
 public:
-    DynamicArray() : size(2), top(0), dynamic_array(new T[size]) {}
+    DynamicArray() : size(1), top(0), dynamic_array(new T[size]) 
+
+    DynamicArray(int size) : size(size), top(size), dynamic_array(new T[size]) {}
 
     DynamicArray(vector<T> &vec) : size(2 * vec.size()), top(0), dynamic_array(new T[2 * size])
     {
@@ -102,12 +104,12 @@ public:
     void clear()
     {
         top = 0;
-        size = 2;
+        size = 1;
         delete[] dynamic_array;
         T *new_arr = new T[size];
     }
     
-    T operator[](int index)
+    T& operator[](int index)
     {
         assert(index < top);
         assert(index >= 0);

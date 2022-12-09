@@ -101,7 +101,7 @@ List<T>::~List()
 }
 
 template <class T>
-List<T>::List(const List<T> &list) : size(list.size)
+List<T>::List(const List<T> &list)
 {
     this->first = this->last = this->Iterator = nullptr;
     Node<T> *current = list.last;
@@ -110,6 +110,7 @@ List<T>::List(const List<T> &list) : size(list.size)
         this->addElement(current->key, current->data);
         current = current->prev;
     }
+    size = list.size;
 }
 
 template <class T>
@@ -127,7 +128,7 @@ List<T> &List<T>::operator=(const List<T> &list)
     }
     first = last;
 
-    this->size = list.size;
+    
     this->first = this->last = this->Iterator = nullptr;
     current = list.last;
     while (current)
@@ -135,6 +136,7 @@ List<T> &List<T>::operator=(const List<T> &list)
         this->addElement(current->key, current->data);
         current = current->prev;
     }
+    this->size = list.size;
     return *this;
 }
 
@@ -227,6 +229,7 @@ void List<T>::clearList()
     {
         getNextKey();
         delete tmp;
+        tmp = Iterator;
     }
     first = last = Iterator = nullptr;
     size = 0;
