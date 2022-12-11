@@ -21,7 +21,7 @@ private:
     T *dynamic_array;
 
 public:
-    DynamicArray() : size(1), top(0), dynamic_array(new T[size]) 
+    DynamicArray() : size(1), top(0), dynamic_array(new T[size]) {}
 
     DynamicArray(int size) : size(size), top(size), dynamic_array(new T[size]) {}
 
@@ -107,6 +107,7 @@ public:
         size = 1;
         delete[] dynamic_array;
         T *new_arr = new T[size];
+        dynamic_array = new_arr;
     }
     
     T& operator[](int index)
