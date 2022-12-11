@@ -120,13 +120,17 @@ public:
         for (int i = 0; i < num_of_vertices; i++)
         { // delete the vertex number index from the vectors in the other vertices that form an edge with index.
             if (i == index)
+            {
+                while (edges[index].first)
+                    edges[index].removeLast();
+                while (out_edges[index].first)
+                    out_edges[index].removeLast();
                 continue;
+            }
             edges[i].removeElement(index);
             if (is_directed)
                 out_edges[i].removeElement(index);
         }
-        edges[index].clearList();
-        out_edges[index].clearList();
     }
 
     void clear() // the clear func erases the whole graph.
