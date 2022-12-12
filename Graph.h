@@ -158,6 +158,8 @@ public:
     }
 
     int numOfVertices() { return num_of_vertices; }
+
+    DynamicArray<List<int>> getEdges() { return edges; }
 };
 
 #endif // GRAPH
